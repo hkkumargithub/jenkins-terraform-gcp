@@ -1,0 +1,14 @@
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfplan.*
+*.local
+.vs/
+.terraform/
+*.log
+.terraform-local/
+.tfplans/
+.terraform.local.hcl
+*.out
+.terraform.lock.hcl
+execution.tfplan.json

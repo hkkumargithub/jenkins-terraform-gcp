@@ -1,11 +1,11 @@
 module "gcp_vm" {
-  source      = "../modules/gcp_vm"
-  vm_name     = var.vm_name
+  source       = "../modules/gcp_vm"
+  vm_name      = var.vm_name
   machine_type = var.machine_type
-  zone        = var.zone
-  image       = var.image
-  network     = var.network
-  subnetwork     = var.subnetwork
+  zone         = var.zone
+  image        = var.image
+  network      = var.network
+  subnetwork   = var.subnetwork
 }
 
 provider "google" {
