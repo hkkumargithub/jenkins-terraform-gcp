@@ -87,29 +87,44 @@ pipeline {
             }
         }
 
+        // stage('Request Approval') {
+        //     steps {
+        //         script {
+        //             def emailBody = """
+        //                 <p>Please review the Terraform plan and approve or reject the changes.</p>
+        //                 <p><a href="${env.BUILD_URL}console">Jenkins Build Link</a></p>
+        //             """
+        //             if (env.APPLY_DEV == 'true') {
+        //                 emailBody += "<p>Changes in dev environment: <a href='${env.BUILD_URL}artifact/tfplan-dev.json'>tfplan-dev.json</a></p>"
+        //             }
+        //             if (env.APPLY_PROD == 'true') {
+        //                 emailBody += "<p>Changes in prod environment: <a href='${env.BUILD_URL}artifact/tfplan-prod.json'>tfplan-prod.json</a></p>"
+        //             }
+                    
+        //             emailext (
+        //                 subject: "Approval required for ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+        //                 body: emailBody,
+        //                 to: 'harsha.kumar@niveussolutions.com'
+        //             )
+        //         }
+        //     }
+        // }
+
         stage('Request Approval') {
             steps {
                 script {
-                    def emailBody = """
-                        <p>Please review the Terraform plan and approve or reject the changes.</p>
-                        <p><a href="${env.BUILD_URL}console">Jenkins Build Link</a></p>
-                    """
-                    if (env.APPLY_DEV == 'true') {
-                        emailBody += "<p>Changes in dev environment: <a href='${env.BUILD_URL}artifact/tfplan-dev.json'>tfplan-dev.json</a></p>"
-                    }
-                    if (env.APPLY_PROD == 'true') {
-                        emailBody += "<p>Changes in prod environment: <a href='${env.BUILD_URL}artifact/tfplan-prod.json'>tfplan-prod.json</a></p>"
-                    }
-                    
                     emailext (
                         subject: "Approval required for ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                        body: emailBody,
+                        body: """
+                            <p>Please review the Terraform plan and approve or reject the changes.</p>
+                            <p><a href="${env.BUILD_URL}console" > Jenkins Build Link</a></p>
+                        """,
                         to: 'harsha.kumar@niveussolutions.com'
                     )
                 }
             }
         }
-
+        
         stage('Wait for Approval') {
             steps {
                 input message: 'Do you approve the Terraform changes?'
