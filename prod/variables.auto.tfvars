@@ -1,5 +1,5 @@
 project        = "infra-svc-sop-mysql"
-instance_name  = "prod-vm-instance"
+instance_name  = "prod-vm-instance-first"
 machine_type   = "e2-micro"
 project_id     = "infra-svc-sop-mysql"
 zone           = "asia-south1-b"
