@@ -26,7 +26,7 @@ pipeline {
                 script {
                     def folders = ['dev', 'prod']
                     for (folder in folders) {
-                        dir("terraform/${folder}") {
+                        dir("${folder}") {
                             sh 'terraform init'
                         }
                     }
@@ -39,7 +39,7 @@ pipeline {
                 script {
                     def folders = ['dev', 'prod']
                     for (folder in folders) {
-                        dir("terraform/${folder}") {
+                        dir("${folder}") {
                             sh 'terraform plan -out=tfplan'
                             def planOutput = sh(script: 'terraform show -json tfplan', returnStdout: true)
                             writeFile file: "tfplan-${folder}.json", text: planOutput
@@ -57,9 +57,9 @@ pipeline {
                         subject: "Approval required for ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                         body: """
                             <p>Please review the Terraform plan and approve or reject the changes.</p>
-                            <p><a href="${env.BUILD_URL}">Jenkins Build Link</a></p>
+                            <p><a href="${env.BUILD_URL}console">Jenkins Build Link</a></p>
                         """,
-                        to: 'approver@example.com'
+                        to: 'harsha.kumar@niveussolutions.com'
                     )
                 }
             }
@@ -76,7 +76,7 @@ pipeline {
                 script {
                     def folders = ['dev', 'prod']
                     for (folder in folders) {
-                        dir("terraform/${folder}") {
+                        dir("${folder}") {
                             sh 'terraform apply -auto-approve tfplan'
                         }
                     }
