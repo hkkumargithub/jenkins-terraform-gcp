@@ -20,13 +20,43 @@ pipeline {
                 }
             }
         }
+
+        stage('Identify Changes') {
+            steps {
+                script {
+                    // Identify changed folders
+                    def changes = sh(script: "git diff --name-only HEAD~1", returnStdout: true).trim()
+                    def devChanged = changes.contains("dev/")
+                    def prodChanged = changes.contains("prod/")
+                    
+                    if (devChanged) {
+                        env.APPLY_DEV = 'true'
+                    } else {
+                        env.APPLY_DEV = 'false'
+                    }
+                    
+                    if (prodChanged) {
+                        env.APPLY_PROD = 'true'
+                    } else {
+                        env.APPLY_PROD = 'false'
+                    }
+                    
+                    echo "Changes in dev folder: ${env.APPLY_DEV}"
+                    echo "Changes in prod folder: ${env.APPLY_PROD}"
+                }
+            }
+        }
         
         stage('Initialize Terraform') {
             steps {
                 script {
-                    def folders = ['dev', 'prod']
-                    for (folder in folders) {
-                        dir("${folder}") {
+                    if (env.APPLY_DEV == 'true') {
+                        dir('dev') {
+                            sh 'terraform init'
+                        }
+                    }
+                    if (env.APPLY_PROD == 'true') {
+                        dir('prod') {
                             sh 'terraform init'
                         }
                     }
@@ -37,13 +67,20 @@ pipeline {
         stage('Plan Terraform Changes') {
             steps {
                 script {
-                    def folders = ['dev', 'prod']
-                    for (folder in folders) {
-                        dir("${folder}") {
+                    if (env.APPLY_DEV == 'true') {
+                        dir('dev') {
                             sh 'terraform plan -out=tfplan'
                             def planOutput = sh(script: 'terraform show -json tfplan', returnStdout: true)
-                            writeFile file: "tfplan-${folder}.json", text: planOutput
-                            archiveArtifacts artifacts: "tfplan-${folder}.json"
+                            writeFile file: "tfplan-dev.json", text: planOutput
+                            archiveArtifacts artifacts: "tfplan-dev.json"
+                        }
+                    }
+                    if (env.APPLY_PROD == 'true') {
+                        dir('prod') {
+                            sh 'terraform plan -out=tfplan'
+                            def planOutput = sh(script: 'terraform show -json tfplan', returnStdout: true)
+                            writeFile file: "tfplan-prod.json", text: planOutput
+                            archiveArtifacts artifacts: "tfplan-prod.json"
                         }
                     }
                 }
@@ -53,12 +90,20 @@ pipeline {
         stage('Request Approval') {
             steps {
                 script {
+                    def emailBody = """
+                        <p>Please review the Terraform plan and approve or reject the changes.</p>
+                        <p><a href="${env.BUILD_URL}console">Jenkins Build Link</a></p>
+                    """
+                    if (env.APPLY_DEV == 'true') {
+                        emailBody += "<p>Changes in dev environment: <a href='${env.BUILD_URL}artifact/tfplan-dev.json'>tfplan-dev.json</a></p>"
+                    }
+                    if (env.APPLY_PROD == 'true') {
+                        emailBody += "<p>Changes in prod environment: <a href='${env.BUILD_URL}artifact/tfplan-prod.json'>tfplan-prod.json</a></p>"
+                    }
+                    
                     emailext (
                         subject: "Approval required for ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                        body: """
-                            <p>Please review the Terraform plan and approve or reject the changes.</p>
-                            <p><a href="${env.BUILD_URL}console">Jenkins Build Link</a></p>
-                        """,
+                        body: emailBody,
                         to: 'harsha.kumar@niveussolutions.com'
                     )
                 }
@@ -74,9 +119,13 @@ pipeline {
         stage('Apply Terraform Changes') {
             steps {
                 script {
-                    def folders = ['dev', 'prod']
-                    for (folder in folders) {
-                        dir("${folder}") {
+                    if (env.APPLY_DEV == 'true') {
+                        dir('dev') {
+                            sh 'terraform apply -auto-approve tfplan'
+                        }
+                    }
+                    if (env.APPLY_PROD == 'true') {
+                        dir('prod') {
                             sh 'terraform apply -auto-approve tfplan'
                         }
                     }
