@@ -1,12 +1,12 @@
 project        = "infra-svc-sop-mysql"
-instance_name  = "dev-vm-instance-second"
+instance_name  = "dev-vm-instance-fourth"
 machine_type   = "e2-micro"
 project_id     = "infra-svc-sop-mysql"
 zone           = "asia-south1-b"
 network        = "vpc-11"
 subnetwork     = "subnet-11"
 region         = "asia-south1"
-vm_name        = "dev-vm-instance-second"
+vm_name        = "dev-vm-instance-fourth"
 svc_account_id = "jenkins-vm-sa@infra-svc-sop-mysql.iam.gserviceaccount.com"
 network_interface = [{
   nic_subnetwork         = "subnet-11",
