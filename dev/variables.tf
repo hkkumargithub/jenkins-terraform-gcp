@@ -1,8 +1,8 @@
-variable "instance_name" {
-  type        = string
-  description = "zone"
-  default     = "dev-vm-instance"
-}
+# variable "instance_name" {
+#   type        = string
+#   description = "zone"
+#   default     = "dev-vm-instance"
+# }
 
 variable "project_id" {
   description = "The GCP project"

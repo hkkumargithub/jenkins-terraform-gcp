@@ -6,7 +6,6 @@ zone           = "asia-south1-b"
 network        = "vpc-11"
 subnetwork     = "subnet-11"
 region         = "asia-south1"
-vm_name        = "prod-vm-instance-fifth"
 svc_account_id = "jenkins-vm-sa@infra-svc-sop-mysql.iam.gserviceaccount.com"
 network_interface = [{
   nic_subnetwork         = "subnet-11",
